@@ -3,9 +3,9 @@ const app = express()
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var Student = require("./models/student");
+var Hallticket = require("./models/hallticket");
 var cors = require('cors');
 var port = process.env.PORT || 3000;
-
 mongoose.connect('mongodb://vijay18399:lucky18399@ds149676.mlab.com:49676/chat', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -54,7 +54,9 @@ app.post('/updating/:studentid/:stud2/:stud3', function (req, res) {
 
 
 app.post('/create_student', function (req, res) {
-    let newStudent = Student(req.body);
+    data = req.body;
+    data.joinedAt= new Date();
+    let newStudent = Student(data);
     newStudent.save((err, student) => {
       if (err) {
         return res.status(400).json({ msg: err });
@@ -78,7 +80,7 @@ app.get('/students/:roll_number', function (req, res) {
 })
 
 app.post('/update_student', function (req, res) {
-Student.updateOne({ _id : { $eq: req.body.roll_number } }, req.body, (err, data) => {
+Student.updateOne({ roll_number : { $eq: req.body.roll_number } }, req.body, (err, data) => {
     if(data){
         return res.status(201).json({ data: data });
     }
