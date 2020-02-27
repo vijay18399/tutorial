@@ -42,10 +42,10 @@ app.get('/params/:studentid', function (req, res) {
 app.post('/posting', function (req, res) {
     return res.status(201).json(req.body);
 })
-app.post('/updating/:studentid', function (req, res) {
+app.post('/updating/:studentid/:stud2/:stud3', function (req, res) {
   dat = {
     body:req.body,
-    params:req.params.studentid
+    params:req.params
   }
     return res.status(201).json(dat);
 })
