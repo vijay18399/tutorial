@@ -43,7 +43,11 @@ app.post('/posting', function (req, res) {
     return res.status(201).json(req.body);
 })
 app.post('/updating/:studentid', function (req, res) {
-    return res.status(201).json(req.body,req.params.studentid);
+  dat = {
+    body:req.body,
+    params:req.params.studentid
+  }
+    return res.status(201).json(dat);
 })
 
 
