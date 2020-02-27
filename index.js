@@ -42,7 +42,7 @@ app.get('/params/:studentid', function (req, res) {
 app.post('/posting', function (req, res) {
     return res.status(201).json(req.body);
 })
-app.post('/posting/:studentid', function (req, res) {
+app.post('/updating/:studentid', function (req, res) {
     return res.status(201).json(req.body,req.params.studentid);
 })
 
