@@ -1,30 +1,16 @@
 const express = require('express')
 const app = express()
 var bodyParser = require("body-parser");
-var mongoose = require("mongoose");
-var Student = require("./models/student");
-var Hallticket = require("./models/hallticket");
+const request = require('request');
+const uuidv4 = require('uuid/v4');
+
 var cors = require('cors');
 var port = process.env.PORT || 3000;
-mongoose.connect('mongodb://vijay18399:lucky18399@ds149676.mlab.com:49676/chat', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  });
 
+var subscriptionKey =  '5085fd39921f48a7ae74185c7210480e';
+var endpoint = 'https://api.cognitive.microsofttranslator.com';
+//'https://vijay.cognitiveservices.azure.com/sts/v1.0/issuetoken';
 
-  const connection = mongoose.connection;
-
-  connection.once("open", () => {
-    console.log("MongoDB database connection established successfully!");
-  });
-  
-  connection.on("error", err => {
-    console.log(
-      "MongoDB connection error. Please make sure MongoDB is running. " + err
-    );
-    process.exit();
-  });
 
 app.use(cors())
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -32,62 +18,75 @@ app.use(bodyParser.json());
 
 
 app.get('/', function (req, res) {
-    return res.status(201).json("API Working");
+    return res.status(201).json("Language API Working");
 })
 
-app.get('/params/:studentid', function (req, res) {
-    return res.status(201).json(req.params.studentid);
-})
+app.post('/translate', function (req, res) {
 
-app.post('/posting', function (req, res) {
-    return res.status(201).json(req.body);
-})
-app.post('/updating/:studentid/:stud2/:stud3', function (req, res) {
-  dat = {
-    body:req.body,
-    params:req.params
+  let options = {
+    method: 'POST',
+    baseUrl: endpoint,
+    url: 'translate',
+    qs: {
+      'api-version': '3.0',
+      'to': req.body.languages
+    },
+    headers: {
+      'Ocp-Apim-Subscription-Key': subscriptionKey,
+      'Content-type': 'application/json',
+      'X-ClientTraceId': uuidv4().toString()
+    },
+    body: [{
+          'text': req.body.text
+    }],
+    json: true,
+};
+request(options, function(err, body){
+  if(body){
+    return res.status(201).json(body);
   }
-    return res.status(201).json(dat);
-})
-
-
-
-
-app.post('/create_student', function (req, res) {
-    data = req.body;
-    data.joinedAt= new Date();
-    let newStudent = Student(data);
-    newStudent.save((err, student) => {
-      if (err) {
-        return res.status(400).json({ msg: err });
-      }
-      return res.status(201).json(student);
-   });
-})
-app.get('/students', function (req, res) {
-    Student.find({},(err, students) => {
-      if (students) {
-        return res.status(201).json(students);
-      }
-    });
-})
-app.get('/students/:roll_number', function (req, res) {
-    Student.find({roll_number : req.params.roll_number},(err, student) => {
-      if (student) {
-        return res.status(201).json(student);
-      }
-    });
-})
-
-app.post('/update_student', function (req, res) {
-Student.updateOne({ roll_number : { $eq: req.body.roll_number } }, req.body, (err, data) => {
-    if(data){
-        return res.status(201).json({ data: data });
-    }
-    if (err) {
-        return res.status(400).json({ msg: err });
-    }
-  });
+  else{
+    return res.status(201).json(err);
+  }
 });
+})
+
+app.post('/detect', function (req, res) {
+  console.log(req.body);
+  let options = {
+    method: 'POST',
+    baseUrl: endpoint,
+    url: 'detect',
+    qs: {
+      'api-version': '3.0',
+    },
+    headers: {
+      'Ocp-Apim-Subscription-Key': subscriptionKey,
+      'Content-type': 'application/json',
+      'X-ClientTraceId': uuidv4().toString()
+    },
+    body: [{
+          'text': req.body.text
+    }],
+    json: true,
+};
+console.log(options);
+ request(options, function(err, body){
+  if(body){
+    console.log(body);
+    return res.status(201).json(body);
+  }
+  else{
+    return res.status(201).json(err);
+  }
+
+});
+  
+})
+
+
+
+
+
 
 app.listen(port);
